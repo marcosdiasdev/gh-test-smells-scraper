@@ -1,2 +1,6 @@
 build
 node_modules
+.env
+csv
+output
+.DS_Store
