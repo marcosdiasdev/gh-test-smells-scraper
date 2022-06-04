@@ -13,7 +13,9 @@ export const createJSONFile = (
   >['data']
 ) => {
   ensureOutputsFolder();
-  const jsonFilename = `output/${commit.sha}.json`;
+  const jsonFilename = `output/${dateToNumericString(
+    commit.commit.author?.date
+  )}-${commit.sha}.json`;
   fs.writeFileSync(jsonFilename, JSON.stringify(commit));
   if (!!process.env.DEBUG) {
     console.log(`Created ${__dirname + '/' + jsonFilename}`);
@@ -31,7 +33,9 @@ export const createCSVFile = (
   >['data']
 ) => {
   ensureOutputsFolder();
-  const xlsxFilename = `output/${commit.sha}.xlsx`;
+  const xlsxFilename = `output/${dateToNumericString(
+    commit.commit.author?.date
+  )}-${commit.sha}.xlsx`;
   const xlsxBuffer: any = XLSX.write(workbook, {
     bookType: 'xlsx',
     type: 'buffer',
@@ -42,11 +46,19 @@ export const createCSVFile = (
   }
 };
 
+/**
+ *
+ * Check if a given commit has an equivalent test smells CSV file
+ */
 export const hasTestSmellsFile = (sha: string) => {
   const csvFilename = `csv/${sha}_testSmells.csv`;
   return fs.existsSync(csvFilename);
 };
 
+/**
+ *
+ * Get CSV test smells files content as a workbook
+ */
 export const getTestSmellsWorkbook = (sha: string): XLSX.WorkBook => {
   const csvFilename = `csv/${sha}_testSmells.csv`;
   return XLSX.readFile(csvFilename);
@@ -61,3 +73,6 @@ const ensureOutputsFolder = () => {
     fs.mkdirSync('output');
   }
 };
+
+export const dateToNumericString = (date?: string) =>
+  date?.replace(/([A-Z])|([:-])/g, '');
